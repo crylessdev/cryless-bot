@@ -20,22 +20,20 @@ const client = new Client({
 let lastNewsTitle = '';
 
 client.once('ready', () => {
-  console.log(`[${new Date().toLocaleTimeString()}] Cryless Bot успішно запущено як ${client.user.tag}!`);
+  console.log(`[${new Date().toLocaleTimeString()}] Cryless Bot is online as ${client.user.tag}!`);
   
-  // Запускаємо перевірку новин кожні 10 хвилин
   checkSiteNews();
   setInterval(checkSiteNews, 10 * 60 * 1000);
 });
 
 // ==========================================
-// 1. АВТОПАЗИНГ ТА ПУБЛІКАЦІЯ НОВИН
+// 1. SITE NEWS AUTOMATIC TRACKER
 // ==========================================
 async function checkSiteNews() {
   try {
     const response = await fetch('https://cryless-visuals.netlify.app');
     const html = await response.text();
 
-    // Шукаємо заголовок або новину на сторінці
     const match = html.match(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/i);
     if (match && match[1]) {
       const currentTitle = match[1].replace(/<[^>]+>/g, '').trim();
@@ -44,14 +42,14 @@ async function checkSiteNews() {
         const newsChannel = client.channels.cache.get(process.env.NEWS_CHANNEL_ID);
         if (newsChannel) {
           const embed = new EmbedBuilder()
-            .setTitle('📢 Нове оновлення на сайті!')
-            .setDescription(`На сайті Cryless Visuals з'явилась нова інформація:\n\n**${currentTitle}**`)
+            .setTitle('📢 New Update Released!')
+            .setDescription(`A new update is available on the website:\n\n**${currentTitle}**`)
             .setColor('#ff79c6')
             .setTimestamp();
 
           const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-              .setLabel('Читати на сайті')
+              .setLabel('Read on Website')
               .setStyle(ButtonStyle.Link)
               .setURL('https://cryless-visuals.netlify.app')
           );
@@ -62,12 +60,12 @@ async function checkSiteNews() {
       lastNewsTitle = currentTitle;
     }
   } catch (error) {
-    console.error('Помилка перевірки новин:', error.message);
+    console.error('Error checking news:', error.message);
   }
 }
 
 // ==========================================
-// 2. ОБРОБКА SLASH-КОМАНД ТА КНОПОК
+// 2. SLASH COMMANDS & BUTTONS HANDLER
 // ==========================================
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
@@ -75,27 +73,27 @@ client.on('interactionCreate', async interaction => {
   const { commandName } = interaction;
 
   if (commandName === 'ping') {
-    await interaction.reply({ content: `Pong! 🏓 Затримка: ${client.ws.ping}ms`, ephemeral: true });
+    await interaction.reply({ content: `Pong! 🏓 Latency: ${client.ws.ping}ms`, ephemeral: true });
   } 
   
   else if (commandName === 'modinfo') {
     const embed = new EmbedBuilder()
       .setTitle('🌸 Cryless Visuals Mod')
-      .setDescription('Оптимізація та кастомізація візуалу Minecraft.')
+      .setDescription('Enhance and customize your Minecraft visual experience.')
       .addFields(
-        { name: 'Платформа', value: 'Minecraft Fabric', inline: true },
-        { name: 'Категорія', value: 'PvP / Visuals', inline: true },
-        { name: 'Статус', value: 'Active Development', inline: true }
+        { name: 'Platform', value: 'Minecraft Fabric', inline: true },
+        { name: 'Category', value: 'PvP / Visuals', inline: true },
+        { name: 'Status', value: 'Active Development', inline: true }
       )
       .setColor('#ff79c6');
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setLabel('Офіційний сайт')
+        .setLabel('Official Website')
         .setStyle(ButtonStyle.Link)
         .setURL('https://cryless-visuals.netlify.app'),
       new ButtonBuilder()
-        .setLabel('Завантажити мод')
+        .setLabel('Download Mod')
         .setStyle(ButtonStyle.Link)
         .setURL('https://cryless-visuals.netlify.app#download')
     );
@@ -104,20 +102,20 @@ client.on('interactionCreate', async interaction => {
   }
 
   else if (commandName === 'site') {
-    await interaction.reply({ content: 'Офіційний сайт проєкту: https://cryless-visuals.netlify.app' });
+    await interaction.reply({ content: 'Official website: https://cryless-visuals.netlify.app' });
   }
 });
 
 // ==========================================
-// 3. СИСТЕМА ЛОГУВАННЯ ПОДІЙ СЕРВЕРА
+// 3. SERVER LOGGING SYSTEM
 // ==========================================
 client.on('guildMemberAdd', async member => {
   const logChannel = member.guild.channels.cache.get(process.env.LOGS_CHANNEL_ID);
   if (!logChannel) return;
 
   const embed = new EmbedBuilder()
-    .setTitle('📥 Новий учасник')
-    .setDescription(`Користувач **${member.user.tag}** (${member}) приєднався до сервера.`)
+    .setTitle('📥 Member Joined')
+    .setDescription(`User **${member.user.tag}** (${member}) joined the server.`)
     .setColor('#50fa7b')
     .setTimestamp();
 
@@ -129,8 +127,8 @@ client.on('guildMemberRemove', async member => {
   if (!logChannel) return;
 
   const embed = new EmbedBuilder()
-    .setTitle('📤 Учасник покинув сервер')
-    .setDescription(`Користувач **${member.user.tag}** покинув сервер.`)
+    .setTitle('📤 Member Left')
+    .setDescription(`User **${member.user.tag}** left the server.`)
     .setColor('#ff5555')
     .setTimestamp();
 
@@ -144,11 +142,11 @@ client.on('messageDelete', async message => {
   if (!logChannel) return;
 
   const embed = new EmbedBuilder()
-    .setTitle('🗑️ Повідомлення видалено')
+    .setTitle('🗑️ Message Deleted')
     .addFields(
-      { name: 'Автор', value: `${message.author.tag}`, inline: true },
-      { name: 'Канал', value: `${message.channel}`, inline: true },
-      { name: 'Вміст', value: message.content || '*[Без тексту / медіафайли]*', inline: false }
+      { name: 'Author', value: `${message.author.tag}`, inline: true },
+      { name: 'Channel', value: `${message.channel}`, inline: true },
+      { name: 'Content', value: message.content || '*[No text content / Media]*', inline: false }
     )
     .setColor('#ffb86c')
     .setTimestamp();
