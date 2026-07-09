@@ -13,6 +13,14 @@ const commands = [
   new SlashCommandBuilder()
     .setName('site')
     .setDescription('Link to the official Cryless website'),
+
+  new SlashCommandBuilder()
+    .setName('stats')
+    .setDescription('Get real-time statistics from Modrinth'),
+
+  new SlashCommandBuilder()
+    .setName('setup-tickets')
+    .setDescription('Setup the ticket system panel (Admin only)'),
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
